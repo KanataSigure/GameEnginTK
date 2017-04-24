@@ -87,7 +87,9 @@ private:
 
 	//エフェクトファクトリー
 	std::unique_ptr<DirectX::EffectFactory> m_factory;
+	std::unique_ptr<DirectX::EffectFactory> m_factory2;
 	//モデル
 	std::unique_ptr<DirectX::Model>m_model;
+	std::unique_ptr<DirectX::Model>m_model2;
 
 };

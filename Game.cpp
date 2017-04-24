@@ -58,7 +58,7 @@ void Game::Initialize(HWND window, int width, int height)
 	m_view = Matrix::CreateLookAt(Vector3(0.f, 2.f, 5.f),
 		Vector3::Zero, Vector3::UnitY/*©“¯‚¶(0,1,0)*/);
 	m_proj = Matrix::CreatePerspectiveFieldOfView(XM_PI / 4.f,
-		float(m_outputWidth) / float(m_outputHeight), 0.1f, 10.f);
+		float(m_outputWidth) / float(m_outputHeight), 0.1f, 500.f);
 
 	m_effect->SetView(m_view);
 	m_effect->SetProjection(m_proj);
@@ -84,7 +84,7 @@ void Game::Initialize(HWND window, int width, int height)
 	m_factory->SetDirectory(L"Resources");
 
 	m_model = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/Ground1m.cmo",*m_factory);
-	
+	m_model2 = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/Skydome.cmo", *m_factory);
 
 }
 
@@ -145,10 +145,10 @@ void Game::Render()
 	//4/24
 	//ƒ‚ƒfƒ‹‚ğ•`‰æ
 	m_model->Draw(m_d3dContext.Get(),m_states,m_world,m_view,m_proj);
+	m_model2->Draw(m_d3dContext.Get(), m_states, m_world, m_view, m_proj);
 
-
-	m_batch->Begin();
-	m_batch->DrawLine
+	//m_batch->Begin();
+	/*m_batch->DrawLine
 	(
 		VertexPositionColor(
 			SimpleMath::Vector3(0, 0, 0),
@@ -156,20 +156,20 @@ void Game::Render()
 		VertexPositionColor(
 			SimpleMath::Vector3(800, 600, 0),
 			SimpleMath::Color(1, 1, 1))
-	);
+	);*/
 
 
-	VertexPositionColor v1(Vector3(0.f, 0.5f, 0.5f), Colors::Yellow);
+	/*VertexPositionColor v1(Vector3(0.f, 0.5f, 0.5f), Colors::Yellow);
 	VertexPositionColor v2(Vector3(0.5f, -0.5f, 0.5f), Colors::Yellow);
-	VertexPositionColor v3(Vector3(-0.5f, -0.5f, 0.5f), Colors::Yellow);
+	VertexPositionColor v3(Vector3(-0.5f, -0.5f, 0.5f), Colors::Yellow);*/
 
 	/*VertexPositionColor v1(Vector3(0.0f, 600.0f, 0.0f), Colors::Yellow);
 	VertexPositionColor v2(Vector3(400.0f, 0.0f,0.0f), Colors::Yellow);
 	VertexPositionColor v3(Vector3(800.0f, 600.0f, 0.0f), Colors::Yellow); */
 
-	m_batch->DrawTriangle(v1, v2, v3);
+	/*m_batch->DrawTriangle(v1, v2, v3);
 
-	m_batch->End();
+	m_batch->End();*/
 
 	Present();
 }
