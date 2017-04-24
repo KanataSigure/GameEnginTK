@@ -77,6 +77,15 @@ void Game::Initialize(HWND window, int width, int height)
 
 	//デバッグカメラ生成
 	m_debugcamera = std::make_unique<DebugCamera>(m_outputWidth,m_outputHeight);
+
+	//エフェクトファクトリーの作成
+	m_factory = std::make_unique<EffectFactory>(m_d3dDevice.Get());
+	//テクスチャーの読み込み指定
+	m_factory->SetDirectory(L"Resources");
+
+	m_model = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/Ground1m.cmo",*m_factory);
+	
+
 }
 
 // Executes the basic game loop.
@@ -132,6 +141,11 @@ void Game::Render()
 	m_effect->SetProjection(m_proj);
 	m_effect->Apply(m_d3dContext.Get());
 	m_d3dContext->IASetInputLayout(m_inputLayout.Get());
+
+	//4/24
+	//モデルを描画
+	m_model->Draw(m_d3dContext.Get(),m_states,m_world,m_view,m_proj);
+
 
 	m_batch->Begin();
 	m_batch->DrawLine
