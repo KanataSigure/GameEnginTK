@@ -85,7 +85,26 @@ void Game::Initialize(HWND window, int width, int height)
 
 	m_model = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/Ground1m.cmo",*m_factory);
 	m_model2 = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/Skydome.cmo", *m_factory);
+	for (int i = 0; i < 20; i++)
+	{
+		m_ball[i] = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/ball.cmo", *m_factory);
+	}
 
+
+	//‹…‚Ìƒ[ƒ‹ƒhs—ñ‚ðŒvŽZ‚·‚é
+	Matrix scalemat = Matrix::CreateScale(2.0f);
+
+	//‰ñ“]Šp
+	//ƒ[ƒ‹
+	
+	/*for (int i = 0; i < 10; i++)
+	{
+		rotmatx[i] = Matrix::CreateRotationX(XMConvertToRadians(36.0f*i));
+	}*/
+	
+	
+
+	
 }
 
 // Executes the basic game loop.
@@ -114,6 +133,29 @@ void Game::Update(DX::StepTimer const& timer)
 	m_view = m_debugcamera->GetCameraMatrix();
 	m_effect->SetView(m_view);
 	m_effect->SetProjection(m_proj);
+
+
+	maware += 0.5f;
+	for (int i = 0; i < 10; i++)
+	{
+		if (i < 10)
+		{
+			rotmaty[i] = Matrix::CreateRotationY(XMConvertToRadians(36.0f*i + maware));
+		}
+		else
+		{
+			rotmaty[i] = Matrix::CreateRotationY(XMConvertToRadians(36.0f*i - maware));
+		}
+	}
+	Matrix transmat = Matrix::CreateTranslation(20.0f, 0, 0);
+	Matrix transmat2 = Matrix::CreateTranslation(40.0f, 0, 0);
+
+	for (int i = 0; i < 10; i++)
+	{
+		m_worldball[i] = transmat* rotmaty[i];
+		m_worldball[i + 10] = transmat2* rotmaty[i];
+
+	}
 }
 
 // Draws the scene.
@@ -146,7 +188,11 @@ void Game::Render()
 	//ƒ‚ƒfƒ‹‚ð•`‰æ
 	m_model->Draw(m_d3dContext.Get(),m_states,m_world,m_view,m_proj);
 	m_model2->Draw(m_d3dContext.Get(), m_states, m_world, m_view, m_proj);
-
+	
+	for (int i = 0; i < 20; i++)
+	{
+		m_ball[i]->Draw(m_d3dContext.Get(), m_states, m_worldball[i], m_view, m_proj);
+	}
 	//m_batch->Begin();
 	/*m_batch->DrawLine
 	(

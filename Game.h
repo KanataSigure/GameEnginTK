@@ -91,5 +91,16 @@ private:
 	//モデル
 	std::unique_ptr<DirectX::Model>m_model;
 	std::unique_ptr<DirectX::Model>m_model2;
+	//球モデル
+	std::unique_ptr<DirectX::Model>m_ball[20];
+
+	//球のワールド行列
+	DirectX::SimpleMath::Matrix m_worldball[20];
+	//ロール
+	DirectX::SimpleMath::Matrix rotmatx[10];
+	//ヨー（方位角）
+	DirectX::SimpleMath::Matrix rotmaty[10];
+
+	float maware=0;
 
 };
