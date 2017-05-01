@@ -47,64 +47,63 @@ void Game::Initialize(HWND window, int width, int height)
 	m_timer.SetTargetElapsedSeconds(1.0 / 60);
 	*/
 
-	//初期化はここに書く＊
+//初期化はここに書く＊
 
 
-	m_batch = std::make_unique<PrimitiveBatch<VertexPositionColor>>(m_d3dContext.Get());
+m_batch = std::make_unique<PrimitiveBatch<VertexPositionColor>>(m_d3dContext.Get());
 
 
-	m_effect = std::make_unique<BasicEffect>(m_d3dDevice.Get());
+m_effect = std::make_unique<BasicEffect>(m_d3dDevice.Get());
 
-	m_view = Matrix::CreateLookAt(Vector3(0.f, 2.f, 5.f),
-		Vector3::Zero, Vector3::UnitY/*←同じ(0,1,0)*/);
-	m_proj = Matrix::CreatePerspectiveFieldOfView(XM_PI / 4.f,
-		float(m_outputWidth) / float(m_outputHeight), 0.1f, 500.f);
+m_view = Matrix::CreateLookAt(Vector3(0.f, 2.f, 5.f),
+	Vector3::Zero, Vector3::UnitY/*←同じ(0,1,0)*/);
+m_proj = Matrix::CreatePerspectiveFieldOfView(XM_PI / 4.f,
+	float(m_outputWidth) / float(m_outputHeight), 0.1f, 500.f);
 
-	m_effect->SetView(m_view);
-	m_effect->SetProjection(m_proj);
+m_effect->SetView(m_view);
+m_effect->SetProjection(m_proj);
 
-	m_effect->SetVertexColorEnabled(true);
+m_effect->SetVertexColorEnabled(true);
 
-	void const* shaderByteCode;
-	size_t byteCodeLength;
+void const* shaderByteCode;
+size_t byteCodeLength;
 
-	m_effect->GetVertexShaderBytecode(&shaderByteCode, &byteCodeLength);
+m_effect->GetVertexShaderBytecode(&shaderByteCode, &byteCodeLength);
 
-	m_d3dDevice->CreateInputLayout(VertexPositionColor::InputElements,
-		VertexPositionColor::InputElementCount,
-		shaderByteCode, byteCodeLength,
-		m_inputLayout.GetAddressOf());
+m_d3dDevice->CreateInputLayout(VertexPositionColor::InputElements,
+	VertexPositionColor::InputElementCount,
+	shaderByteCode, byteCodeLength,
+	m_inputLayout.GetAddressOf());
 
-	//デバッグカメラ生成
-	m_debugcamera = std::make_unique<DebugCamera>(m_outputWidth,m_outputHeight);
+//デバッグカメラ生成
+m_debugcamera = std::make_unique<DebugCamera>(m_outputWidth, m_outputHeight);
 
-	//エフェクトファクトリーの作成
-	m_factory = std::make_unique<EffectFactory>(m_d3dDevice.Get());
-	//テクスチャーの読み込み指定
-	m_factory->SetDirectory(L"Resources");
+//エフェクトファクトリーの作成
+m_factory = std::make_unique<EffectFactory>(m_d3dDevice.Get());
+//テクスチャーの読み込み指定
+m_factory->SetDirectory(L"Resources");
 
-	m_model = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/Ground1m.cmo",*m_factory);
-	m_model2 = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/Skydome.cmo", *m_factory);
-	for (int i = 0; i < 20; i++)
-	{
-		m_ball[i] = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/ball.cmo", *m_factory);
-	}
+m_model = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/Ground1m.cmo", *m_factory);
+m_model2 = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/Skydome.cmo", *m_factory);
+
+m_ball = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/ball.cmo", *m_factory);
 
 
-	//球のワールド行列を計算する
-	Matrix scalemat = Matrix::CreateScale(2.0f);
 
-	//回転角
-	//ロール
-	
-	/*for (int i = 0; i < 10; i++)
-	{
-		rotmatx[i] = Matrix::CreateRotationX(XMConvertToRadians(36.0f*i));
-	}*/
-	
-	
+//球のワールド行列を計算する
+Matrix scalemat = Matrix::CreateScale(2.0f);
 
-	
+//回転角
+//ロール
+
+/*for (int i = 0; i < 10; i++)
+{
+	rotmatx[i] = Matrix::CreateRotationX(XMConvertToRadians(36.0f*i));
+}*/
+
+
+
+
 }
 
 // Executes the basic game loop.
@@ -138,22 +137,27 @@ void Game::Update(DX::StepTimer const& timer)
 	maware += 0.5f;
 	for (int i = 0; i < 10; i++)
 	{
-		if (i < 10)
-		{
-			rotmaty[i] = Matrix::CreateRotationY(XMConvertToRadians(36.0f*i + maware));
-		}
-		else
-		{
-			rotmaty[i] = Matrix::CreateRotationY(XMConvertToRadians(36.0f*i - maware));
-		}
+
+		rotmaty[i] = Matrix::CreateRotationY(XMConvertToRadians(36.0f*i + maware));
+
+		rotmaty[i + 10] = Matrix::CreateRotationY(XMConvertToRadians(36.0f*i - maware));
+
 	}
 	Matrix transmat = Matrix::CreateTranslation(20.0f, 0, 0);
 	Matrix transmat2 = Matrix::CreateTranslation(40.0f, 0, 0);
 
+	for (int i = 0; i < 100; i++)
+	{
+		for (int j = 0; j < 100; j++)
+		{
+			transmats[i][j] = Matrix::CreateTranslation((1.0f*i)-50.0f, 0, (1.0f*j)-50.0f);
+		}
+	}
+
 	for (int i = 0; i < 10; i++)
 	{
 		m_worldball[i] = transmat* rotmaty[i];
-		m_worldball[i + 10] = transmat2* rotmaty[i];
+		m_worldball[i + 10] = transmat2* rotmaty[i+10];
 
 	}
 }
@@ -186,12 +190,21 @@ void Game::Render()
 
 	//4/24
 	//モデルを描画
-	m_model->Draw(m_d3dContext.Get(),m_states,m_world,m_view,m_proj);
+
+	for (int i = 0; i < 100; i++)
+	{
+		for (int j = 0; j < 100; j++)
+		{
+			m_model->Draw(m_d3dContext.Get(), m_states, transmats[i][j], m_view, m_proj);
+		}
+	}
+	
 	m_model2->Draw(m_d3dContext.Get(), m_states, m_world, m_view, m_proj);
+
 	
 	for (int i = 0; i < 20; i++)
 	{
-		m_ball[i]->Draw(m_d3dContext.Get(), m_states, m_worldball[i], m_view, m_proj);
+		m_ball->Draw(m_d3dContext.Get(), m_states, m_worldball[i], m_view, m_proj);
 	}
 	//m_batch->Begin();
 	/*m_batch->DrawLine
@@ -300,7 +313,7 @@ void Game::CreateDevice()
 	UINT creationFlags = 0;
 
 #ifdef _DEBUG
-	creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
+	//creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
 	static const D3D_FEATURE_LEVEL featureLevels[] =
