@@ -12,6 +12,7 @@
 #include <CommonStates.h>
 #include <SimpleMath.h>
 #include <Model.h>
+#include <Keyboard.h>
 
 #include"DebugCamera.h"
 
@@ -89,21 +90,43 @@ private:
 	std::unique_ptr<DirectX::EffectFactory> m_factory;
 	std::unique_ptr<DirectX::EffectFactory> m_factory2;
 	//モデル
-	std::unique_ptr<DirectX::Model>m_model;
+
+	std::unique_ptr<DirectX::Model>m_Teapot;
+
+	std::unique_ptr<DirectX::Model>m_Grund;
 
 	std::unique_ptr<DirectX::Model>m_model2;
 	//球モデル
+	std::unique_ptr<DirectX::Model>m_robo;
 	std::unique_ptr<DirectX::Model>m_ball;
 
 	//球のワールド行列
 	DirectX::SimpleMath::Matrix m_worldball[20];
 	//ロール
-	//DirectX::SimpleMath::Matrix rotmatx[10];
+	//DirectX::SimpleMath::Matrix rotmatx[20];
 	////ヨー（方位角）
 	DirectX::SimpleMath::Matrix rotmaty[20];
 
-	DirectX::SimpleMath::Matrix transmats[100][100];
+
+
+	//Teaポット
+	DirectX::SimpleMath::Matrix t_rotmaty[20];
+	DirectX::SimpleMath::Matrix t_transmat[20];
+	DirectX::SimpleMath::Matrix t_scales[20];
+	DirectX::SimpleMath::Matrix t_matome[20];
+	DirectX::SimpleMath::Matrix t_scale;
+
+	DirectX::SimpleMath::Matrix transmats;
+
+
 
 	float maware=0;
+	float avleg = 0;
+	float f_scale = 0;
 
+	//自機系統
+	std::unique_ptr<DirectX::Keyboard> keyboard;
+	DirectX::SimpleMath::Vector3 tank_pos;
+	DirectX::SimpleMath::Matrix t_tank_world;
+	float tank_angle;
 };

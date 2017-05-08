@@ -83,12 +83,14 @@ m_factory = std::make_unique<EffectFactory>(m_d3dDevice.Get());
 //テクスチャーの読み込み指定
 m_factory->SetDirectory(L"Resources");
 
-m_model = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/Ground1m.cmo", *m_factory);
+m_Grund = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/Ground200m.cmo", *m_factory);
 m_model2 = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/Skydome.cmo", *m_factory);
 
+m_robo = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/robo.cmo", *m_factory);
 m_ball = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/ball.cmo", *m_factory);
+m_Teapot= Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/Teapot.cmo", *m_factory);
 
-
+keyboard = std::make_unique<Keyboard>();
 
 //球のワールド行列を計算する
 Matrix scalemat = Matrix::CreateScale(2.0f);
@@ -101,9 +103,27 @@ Matrix scalemat = Matrix::CreateScale(2.0f);
 	rotmatx[i] = Matrix::CreateRotationX(XMConvertToRadians(36.0f*i));
 }*/
 
+for (int i = 0; i < 20; i++)
+{
+	t_scales[i] = Matrix::CreateScale(1.0f);
+}
 
+for (int i = 0; i < 20; i++)
+{
+	t_transmat[i] = Matrix::CreateTranslation(rand()%100, 1, 0);
+}
 
+for (int i = 0; i < 20; i++)
+{
+	rotmaty[i] = Matrix::CreateRotationY(XMConvertToRadians(rand() % 360));
+}
+for (int i = 0; i < 20; i++)
+{
+	t_matome[i] = t_scales[i]*t_transmat[i]* rotmaty[i];
+}
+transmats = Matrix::CreateTranslation(0.0f, 0, 0.0f);
 
+tank_angle = 0.0f;
 }
 
 // Executes the basic game loop.
@@ -134,32 +154,54 @@ void Game::Update(DX::StepTimer const& timer)
 	m_effect->SetProjection(m_proj);
 
 
+
+	avleg++;
+	f_scale += 0.01;
 	maware += 0.5f;
-	for (int i = 0; i < 10; i++)
+	//kaitenn
+	for (int i = 0; i < 20; i++)
 	{
-
-		rotmaty[i] = Matrix::CreateRotationY(XMConvertToRadians(36.0f*i + maware));
-
-		rotmaty[i + 10] = Matrix::CreateRotationY(XMConvertToRadians(36.0f*i - maware));
-
-	}
-	Matrix transmat = Matrix::CreateTranslation(20.0f, 0, 0);
-	Matrix transmat2 = Matrix::CreateTranslation(40.0f, 0, 0);
-
-	for (int i = 0; i < 100; i++)
-	{
-		for (int j = 0; j < 100; j++)
-		{
-			transmats[i][j] = Matrix::CreateTranslation((1.0f*i)-50.0f, 0, (1.0f*j)-50.0f);
-		}
+		t_rotmaty[i] = Matrix::CreateRotationY(XMConvertToRadians(avleg));
 	}
 
-	for (int i = 0; i < 10; i++)
-	{
-		m_worldball[i] = transmat* rotmaty[i];
-		m_worldball[i + 10] = transmat2* rotmaty[i+10];
+	t_scale = Matrix::CreateScale((cos(f_scale)+2)*0.5f);
 
+
+
+	auto g_kb = keyboard->GetState();
+
+	if (g_kb.W)
+	{
+		Vector3 moveV(0, 0, -0.1f);
+		//移動方向を自機の角度に合わせる
+		moveV = Vector3::TransformNormal(moveV, t_tank_world);
+		tank_pos += moveV;
 	}
+	if (g_kb.S)
+	{
+		Vector3 moveV(0, 0, 0.1f);
+		//移動方向を自機の角度に合わせる
+		moveV = Vector3::TransformNormal(moveV, t_tank_world);
+		tank_pos += moveV;
+	}
+	if (g_kb.A)
+	{
+		//角度を足す
+		tank_angle += 0.04f;
+		
+	}
+	if (g_kb.D)
+	{
+		tank_angle -= 0.04f;
+	}
+	//自機のワールド行列の（　＾ω＾）・・・
+	{
+		Matrix k_transmat = Matrix::CreateTranslation(tank_pos);
+		Matrix a_transmat = Matrix::CreateRotationY(tank_angle);
+
+		t_tank_world = a_transmat*k_transmat;
+	}
+
 }
 
 // Draws the scene.
@@ -191,21 +233,22 @@ void Game::Render()
 	//4/24
 	//モデルを描画
 
-	for (int i = 0; i < 100; i++)
-	{
-		for (int j = 0; j < 100; j++)
-		{
-			m_model->Draw(m_d3dContext.Get(), m_states, transmats[i][j], m_view, m_proj);
-		}
-	}
+	
+	m_Grund->Draw(m_d3dContext.Get(), m_states, transmats, m_view, m_proj);
+	
 	
 	m_model2->Draw(m_d3dContext.Get(), m_states, m_world, m_view, m_proj);
-
+	/*for (int i = 0; i < 20; i++)
+	{
+		m_Teapot->Draw(m_d3dContext.Get(), m_states, t_scale*t_rotmaty[i]*t_matome[i], m_view, m_proj);
+	}*/
 	
-	for (int i = 0; i < 20; i++)
+	m_robo->Draw(m_d3dContext.Get(), m_states, t_tank_world, m_view, m_proj);
+
+	/*for (int i = 0; i < 20; i++)
 	{
 		m_ball->Draw(m_d3dContext.Get(), m_states, m_worldball[i], m_view, m_proj);
-	}
+	}*/
 	//m_batch->Begin();
 	/*m_batch->DrawLine
 	(
